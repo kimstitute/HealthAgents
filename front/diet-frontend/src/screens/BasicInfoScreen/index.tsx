@@ -1,28 +1,28 @@
 import * as S from "./styled";
 import FormInput from "../../components/FormInput";
 
+// 1. App.tsx와 변수명을 똑같이 맞춘 타입 정의
 type BasicInfo = {
   age: string;
   gender: string;
-  heightCm: string;
-  weightKg: string;
-  periodWeeks: string;
-  targetLossKg: string;
+  height: string;      // heightCm -> height 로 변경
+  weight: string;      // weightKg -> weight 로 변경
+  period: string;      // periodWeeks -> period 로 변경
+  targetLoss: string;  // targetLossKg -> targetLoss 로 변경
 };
 
+// 2. App.tsx에서 내려주는 props를 받도록 정의
 type BasicInfoScreenProps = {
-  data: BasicInfo;                                // 👈 App에서 내려주는 값
-  onChange: (next: BasicInfo) => void;           // 👈 App의 setter
-  onNext: (info: BasicInfo) => void;             // 👈 다음 단계로 넘어갈 때 App에 알려줌
+  data: BasicInfo;                     // App.tsx의 basicInfo 상태
+  onChange: (info: BasicInfo) => void; // App.tsx의 setBasicInfo 함수
+  onNext: (info: BasicInfo) => void;   // 다음 단계 이동 함수
 };
 
 const BasicInfoScreen = ({ data, onChange, onNext }: BasicInfoScreenProps) => {
-  // 로컬 state ❌  App state 사용 ⭕
+
+  // 3. 입력값 변경 시 App.tsx의 상태를 업데이트
   const handleChange = (field: keyof BasicInfo, value: string) => {
-    onChange({
-      ...data,
-      [field]: value,
-    });
+    onChange({ ...data, [field]: value });
   };
 
   const handleNext = () => {
@@ -45,6 +45,7 @@ const BasicInfoScreen = ({ data, onChange, onNext }: BasicInfoScreenProps) => {
         </S.Sub>
 
         <S.FormCard>
+          {/* value는 data에서 가져오고, 필드명은 height, weight 등으로 통일 */}
           <FormInput
             label="나이"
             type="number"
@@ -62,29 +63,29 @@ const BasicInfoScreen = ({ data, onChange, onNext }: BasicInfoScreenProps) => {
           <FormInput
             label="키 (cm)"
             type="number"
-            value={data.heightCm}
-            onChange={(v) => handleChange("heightCm", v)}
+            value={data.height}
+            onChange={(v) => handleChange("height", v)}
             placeholder="예: 162"
           />
           <FormInput
             label="현재 체중 (kg)"
             type="number"
-            value={data.weightKg}
-            onChange={(v) => handleChange("weightKg", v)}
+            value={data.weight}
+            onChange={(v) => handleChange("weight", v)}
             placeholder="예: 65"
           />
           <FormInput
             label="다이어트 기간 (주)"
             type="number"
-            value={data.periodWeeks}
-            onChange={(v) => handleChange("periodWeeks", v)}
+            value={data.period}
+            onChange={(v) => handleChange("period", v)}
             placeholder="예: 4"
           />
           <FormInput
             label="목표 감량 체중 (kg)"
             type="number"
-            value={data.targetLossKg}
-            onChange={(v) => handleChange("targetLossKg", v)}
+            value={data.targetLoss}
+            onChange={(v) => handleChange("targetLoss", v)}
             placeholder="예: 5"
           />
         </S.FormCard>
