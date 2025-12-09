@@ -3,14 +3,23 @@ import * as S from "./styled";
 import ChatBubble from "../../components/ChatBubble";
 import ChoiceButtons from "../../components/ChoiceButtons";
 
-// 부모 컴포넌트에게 데이터를 넘겨줄 수 있도록 타입 수정
-type LifestyleSurveyScreenProps = {
-  onComplete: (data: any) => void;
+type LifestyleState = {
+  exerciseFreq: string;
+  mealsPerDay: string;
+  nightSnackFreq: string;
+  eatingOutFreq: string;
+  healthNotes: string;
+};
+
+type Props = {
+  data: LifestyleState;
+  onChange: (next: LifestyleState) => void;
+  onComplete: (data: LifestyleState) => void;
 };
 
 type Question =
   | {
-      key: "exerciseFreq" | "mealsPerDay" | "nightSnackFreq" | "eatingOutFreq";
+      key: keyof LifestyleState;
       type: "choice";
       text: string;
       options: string[];
@@ -33,13 +42,15 @@ const QUESTIONS: Question[] = [
   {
     key: "mealsPerDay",
     type: "choice",
-    text: "좋아요! 😊\n보통 하루에 몇 끼 드시나요?",
+    text:
+      "주로 먹는 식습관을 물어볼게요.\n" +
+      "사용자님은 보통 하루에 몇 끼 드시나요?",
     options: ["1일 1식", "1일 2식", "1일 3식"],
   },
   {
     key: "nightSnackFreq",
     type: "choice",
-    text: "야식은 얼마나 드시나요?",
+    text: "야식은 자주 드시나요?",
     options: ["거의 안 먹음", "가끔 먹음", "자주 먹음"],
   },
   {
@@ -52,52 +63,36 @@ const QUESTIONS: Question[] = [
     key: "healthNotes",
     type: "text",
     text:
-      "마지막으로 건강 관련해서 참고해야 할 사항이 있나요?\n" +
-      "(위장장애, 알레르기, 수면장애, 의사가 권장한 음식/운동 등)",
+      "건강 관련 사항도 알려주세요.\n" +
+      "위장장애, 알레르기, 수면장애, 의사가 제안한 음식·운동이 있다면 적어주세요.",
   },
 ];
 
-const LifestyleSurveyScreen = ({ onComplete }: LifestyleSurveyScreenProps) => {
-  // 1. 스토어 대신 로컬 state로 답변 저장
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  
+const LifestyleSurveyScreen = ({ data, onChange, onComplete }: Props) => {
   const [stepIndex, setStepIndex] = useState(0);
-  const [healthNotesDraft, setHealthNotesDraft] = useState("");
+  const [healthDraft, setHealthDraft] = useState(data.healthNotes || "");
 
   const current = QUESTIONS[stepIndex];
 
-  // 다음 단계로 넘어가거나 완료 처리하는 함수
-  const handleNextStep = (updatedAnswers: Record<string, string>) => {
+  const goNext = (updated: LifestyleState) => {
     if (stepIndex >= QUESTIONS.length - 1) {
-      // 마지막 단계라면 최종 데이터와 함께 완료 함수 호출
-      console.log("설문 완료 데이터:", updatedAnswers);
-      onComplete(updatedAnswers);
+      onComplete(updated);
     } else {
-      // 다음 질문으로 이동
       setStepIndex((prev) => prev + 1);
     }
   };
 
-  // 객관식 답변 처리
   const handleChoice = (value: string) => {
     if (current.type !== "choice") return;
-    
-    // 답변 저장
-    const newAnswers = { ...answers, [current.key]: value };
-    setAnswers(newAnswers);
-    
-    // 다음으로
-    handleNextStep(newAnswers);
+    const next = { ...data, [current.key]: value };
+    onChange(next);
+    goNext(next);
   };
 
-  // 주관식(건강 메모) 답변 처리
-  const handleHealthNotesSubmit = () => {
-    // 답변 저장
-    const newAnswers = { ...answers, healthNotes: healthNotesDraft };
-    setAnswers(newAnswers);
-
-    // 다음으로 (보통 여기가 마지막)
-    handleNextStep(newAnswers);
+  const handleHealthSubmit = () => {
+    const next = { ...data, healthNotes: healthDraft };
+    onChange(next);
+    goNext(next);
   };
 
   return (
@@ -114,11 +109,11 @@ const LifestyleSurveyScreen = ({ onComplete }: LifestyleSurveyScreenProps) => {
           {current.type === "text" && (
             <S.TextBlock>
               <S.TextArea
-                placeholder="자유롭게 적어주세요. 없다면 '없음'이라고 적어주셔도 됩니다."
-                value={healthNotesDraft}
-                onChange={(e) => setHealthNotesDraft(e.target.value)}
+                placeholder="자유롭게 적어주세요. 없다면 '없음'이라고 적으셔도 됩니다."
+                value={healthDraft}
+                onChange={(e) => setHealthDraft(e.target.value)}
               />
-              <S.SubmitButton type="button" onClick={handleHealthNotesSubmit}>
+              <S.SubmitButton type="button" onClick={handleHealthSubmit}>
                 입력 완료
               </S.SubmitButton>
             </S.TextBlock>

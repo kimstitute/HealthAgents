@@ -1,31 +1,33 @@
-import { useState } from "react"; // 1. useState import 추가
 import * as S from "./styled";
 import FormInput from "../../components/FormInput";
 
-type BasicInfoScreenProps = {
-  onNext: () => void;
+type BasicInfo = {
+  age: string;
+  gender: string;
+  heightCm: string;
+  weightKg: string;
+  periodWeeks: string;
+  targetLossKg: string;
 };
 
-const BasicInfoScreen = ({ onNext }: BasicInfoScreenProps) => {
-  // 1. 스토어 제거하고 로컬 state 생성
-  const [info, setInfo] = useState({
-    age: "",
-    gender: "",
-    heightCm: "",
-    weightKg: "",
-    periodWeeks: "",
-    targetLossKg: "",
-  });
+type BasicInfoScreenProps = {
+  data: BasicInfo;                                // 👈 App에서 내려주는 값
+  onChange: (next: BasicInfo) => void;           // 👈 App의 setter
+  onNext: (info: BasicInfo) => void;             // 👈 다음 단계로 넘어갈 때 App에 알려줌
+};
 
-  // 2. 입력값 변경 핸들러
-  const handleChange = (field: string, value: string) => {
-    setInfo((prev) => ({ ...prev, [field]: value }));
+const BasicInfoScreen = ({ data, onChange, onNext }: BasicInfoScreenProps) => {
+  // 로컬 state ❌  App state 사용 ⭕
+  const handleChange = (field: keyof BasicInfo, value: string) => {
+    onChange({
+      ...data,
+      [field]: value,
+    });
   };
 
   const handleNext = () => {
-    // TODO: 나중에 검증/백엔드 전송 가능
-    console.log("입력된 정보:", info); // 데이터 확인용 로그
-    onNext();
+    console.log("입력된 정보:", data);
+    onNext(data);
   };
 
   return (
@@ -43,46 +45,45 @@ const BasicInfoScreen = ({ onNext }: BasicInfoScreenProps) => {
         </S.Sub>
 
         <S.FormCard>
-          {/* value와 onChange를 로컬 state인 info와 handleChange로 연결 */}
           <FormInput
             label="나이"
             type="number"
-            value={info.age}
+            value={data.age}
             onChange={(v) => handleChange("age", v)}
             placeholder="예: 25"
           />
           <FormInput
             label="성별"
             type="select"
-            value={info.gender}
+            value={data.gender}
             onChange={(v) => handleChange("gender", v)}
             options={["여성", "남성", "기타"]}
           />
           <FormInput
             label="키 (cm)"
             type="number"
-            value={info.heightCm}
+            value={data.heightCm}
             onChange={(v) => handleChange("heightCm", v)}
             placeholder="예: 162"
           />
           <FormInput
             label="현재 체중 (kg)"
             type="number"
-            value={info.weightKg}
+            value={data.weightKg}
             onChange={(v) => handleChange("weightKg", v)}
             placeholder="예: 65"
           />
           <FormInput
             label="다이어트 기간 (주)"
             type="number"
-            value={info.periodWeeks}
+            value={data.periodWeeks}
             onChange={(v) => handleChange("periodWeeks", v)}
             placeholder="예: 4"
           />
           <FormInput
             label="목표 감량 체중 (kg)"
             type="number"
-            value={info.targetLossKg}
+            value={data.targetLossKg}
             onChange={(v) => handleChange("targetLossKg", v)}
             placeholder="예: 5"
           />
