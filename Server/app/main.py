@@ -4,7 +4,7 @@ import asyncio
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.api import chat_api  
+from app.api import chat_api, health_api  
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -24,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(chat_api.router)
+app.include_router(health_api.router)
 
 async def heartbeat():
     while True:
@@ -33,8 +34,14 @@ async def heartbeat():
 
 @app.on_event("startup")
 async def startup_event():
-    app.state.heartbeat_task = asyncio.create_task(heartbeat())
-    logger.info("Server startup")
+    try:
+        from app.agents.health_graph import HealthGraph
+        app.state.health_graph = HealthGraph()
+        app.state.heartbeat_task = asyncio.create_task(heartbeat())
+        logger.info("Server startup complete")
+    except Exception as e:
+        logger.error(f"Server startup failed: {e}", exc_info=True)
+        raise
 
 
 @app.on_event("shutdown")
