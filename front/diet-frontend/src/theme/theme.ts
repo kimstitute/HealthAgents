@@ -9,12 +9,17 @@ export const theme = {
     textSub: "#6b7280",
     cardBg: "#ffffff",
     border: "#e5e7eb",
-    bubbleBot: "#f3e8ff",
-    bubbleUser: "#4f46e5",
+    
+    bubbleBot: "#f3e8ff",       /* 🤖 봇 말풍선 색상 */
+  
+
+    bubbleUser: "#FFD6E7",      
+    
+    bubbleUserBorder: "#FFB6C1", 
+    bubbleUserText: "#333333",
   },
   fontSizes: {
     xs: "11px",
-    
     sm: "13px",
     md: "15px",
     lg: "18px",
