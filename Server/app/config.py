@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     llm_temperature: float = 0.3
     llm_max_tokens: int = 1500
 
+    # Firebase 설정
+    firebase_service_account_path: str | None = None
+
     class Config:
         env_file = ".env"
         extra = "ignore"

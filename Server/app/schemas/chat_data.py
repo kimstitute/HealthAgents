@@ -4,6 +4,7 @@ from typing import Union, Literal, Optional
 
 class ChatRequest(BaseModel):
     message: str
+    device_id: Optional[str] = Field(None, description="기기 ID (선택)")
 
 
 class MarkdownBlock(BaseModel):
